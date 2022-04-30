@@ -1,0 +1,50 @@
+<form [formGroup]="searchForm">
+  <div class="form-group has-search">
+    <span class="fa fa-search form-control-feedback"></span>
+    <input class="form-control" formControlName="search" placeholder="Search"/>
+  </div>
+</form>
+<div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th *ngFor="let col of columns" [style.min-width]="col.minWidth" id="col.name">
+              <div *ngIf="!col.isCheckbox && !col.isAction">{{col.displayName}}</div>
+              <div *ngIf="col.isCheckbox"><input type="checkbox" [checked]="hasAllRowsSelected() | async" (change)="toggleAllVisibleCheckbox($event)"> </div>
+              <div *ngIf="col.isAction && col.name === 'edit'">{{col.displayName}}</div>
+          </th> 
+        </tr>
+      </thead>
+      <tbody class="table-font">
+        <ng-container *ngIf="datasource$ | async as datasource">
+          <tr
+            *ngFor="let row of datasource | searchFilter: searchForm.value.search | paginate: { itemsPerPage: pageSize, currentPage: p }"
+            [ngClass]="{
+              'selected-row': (isRowChecked(row) | async)
+              }"
+            >
+            <td *ngFor="let col of columns">
+              <div *ngIf="!col.isCheckbox && !col.isAction">
+                <app-in-place-field-editor 
+                [rowId]="row.id"
+                [colName]="col.name"
+                [value]="row[col.name]" 
+                [editRowId]="editRowId"
+                (valueChangeEventEmitter)="onValueChange($event)"
+                >
+
+                </app-in-place-field-editor></div>
+              <div *ngIf="col.isCheckbox"><input type="checkbox" [checked]="isRowChecked(row) | async" (change)="toggleCheckbox(row, $event)"> </div>
+              <div *ngIf="col.isAction && col.name === 'edit'"><i class="fa fa-edit" (click)="onEdit(row)"></i></div>
+              <div *ngIf="col.isAction && col.name === 'delete'"><i class="fa  fa-trash delete-color  " (click)="onDelete(row)"></i></div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+    <div class="row">
+      <div class="col-2"><button type="button" class="btn btn-danger" [disabled]="(isAnyRowSelected$ | async) === false" (click)="deleteSelectedRows()">Delete Selected</button></div>
+      <div class="col-10"><pagination-controls (pageChange)="p = $event"></pagination-controls></div>
+    </div>
+   
+  </div>

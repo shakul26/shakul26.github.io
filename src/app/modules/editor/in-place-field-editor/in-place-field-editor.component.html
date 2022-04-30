@@ -1,0 +1,2 @@
+<div *ngIf="!startEditing">{{value}}</div>
+<input id="name" type="text" [formControl]="name" *ngIf="startEditing" (keydown.enter)="update()">

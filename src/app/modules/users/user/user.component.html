@@ -1,0 +1,8 @@
+<app-custom-table
+[columns]="columns"
+[datasource$] = "users$"
+[activeEntities$] = "activeUserIds$"
+(activeEventEmitter) = "toggleActive($event)"
+(onFieldValueEventEmitter) = "updateFieldValue($event)"
+(deleteEventEmitter) = "deleteUser($event)"
+></app-custom-table>
